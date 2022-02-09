@@ -1,0 +1,71 @@
+project: visual-flow
+imagePullSecret:  quay.io
+
+backend:
+  createRoles: true
+  serviceAccount: 
+    name: vf-app-backend
+    addSA: true
+  deployment:
+    replicas: 1
+    image:
+      repository: quay.io/redcapcloud/visual-flow
+      tag: latest
+      pullPolicy: Always
+    # variables:
+    secretVariables:
+      KEYSTORE_PASS: "RANDOM_KEYSTORE_PASS"
+      SLACK_API_TOKEN: ""
+    sslSecret: vf-app-backend-ssl
+    resources:
+      requests:
+        cpu: 100m
+        memory: 500M
+      limits:
+        cpu: 300m
+        memory: 2Gi
+  configFile:
+    oauth:
+      userInfo: "https://api.github.com/user"
+      fieldsMap:
+        id: id
+        username: login
+        name: name
+        email: email
+    superusers: []
+    namespace:
+      label: vf-app
+      prefix: "vf-"
+      annotations: {}
+    argo:
+      serverUrl: "http://localhost:2746"
+      limits:
+        cpu: 0.5
+        memory: 512Mi
+      requests:
+        cpu: 0.1
+        memory: 64Mi
+    sparkJob:
+      repository: quay.io/redcapcloud/visual-flow-jobs
+      tag: latest
+      jobSA: spark
+      jobRB: spark-edit
+      addSA: true
+      # kubernetesAPI: "k8s://https://kubernetes.default.svc.cluster.local"
+    slackJob:
+      repository: ibagomel/visual-flow-slack-notification
+      tag: latest
+      appAPItoken: "SLACK_API_TOKEN"
+  service:
+    type: ClusterIP
+    port: 8080
+    # nodePort:
+    annotations: {}
+  subPath: "/"
+  external:
+    enabled: true
+    type: route
+    host: visual-flow.apps.rccokd-dev.redcapcloud.com
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    ssl: {}

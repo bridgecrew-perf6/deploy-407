@@ -1,0 +1,14 @@
+# release name: vf-app
+vf-app:
+  install: true
+  backend:
+    deployment:
+      secretVariables:
+        SLACK_API_TOKEN: ""
+    configFile:
+      superusers:
+        - rcc-account
+vf-secrets:
+  install: true
+ingress-nginx:
+  install: true

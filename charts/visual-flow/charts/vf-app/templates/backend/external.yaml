@@ -1,0 +1,86 @@
+{{- if .Values.backend }}
+{{- $partName := "backend" }}
+{{- with .Values.backend }}
+{{- if .external.enabled }}
+
+{{- if eq .external.type "ingress" }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $.Release.Name }}-{{ $partName }}
+  labels:
+    name: {{ $.Release.Name }}-{{ $partName }}
+    app: {{ $.Release.Name }}
+    project: {{ $.Values.project }}
+  {{- if .external.annotations }}
+  annotations: {{ toYaml .external.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+  - host: {{ .external.host }}
+    http:
+      paths:
+      - path: {{ default "/" .subPath }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ $.Release.Name }}-{{ $partName }}
+            port:
+              number: {{ .service.port }}
+  tls:
+    - hosts:
+        - {{ .external.host }}
+{{- if .external.ssl }}
+{{- if and .external.ssl.cert .external.ssl.key }}
+      secretName: {{ $.Release.Name }}-{{ $partName }}-ingress-ssl
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: {{ $.Release.Name }}-{{ $partName }}-ingress-ssl
+  labels:
+    name: {{ $.Release.Name }}-{{ $partName }}
+    app: {{ $.Release.Name }}
+    project: {{ $.Values.project }}
+type: kubernetes.io/tls
+stringData:
+  tls.crt: |-
+    {{- .external.ssl.cert | nindent 4 }}
+  tls.key: |-
+    {{- .external.ssl.key | nindent 4 }}
+{{- end }}
+{{- end }}
+
+{{- end }}
+
+
+{{- if eq .external.type "route" }}
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: {{ $.Release.Name }}-{{ $partName }}
+  labels:
+    name: {{ $.Release.Name }}-{{ $partName }}
+    app: {{ $.Release.Name }}
+    project: {{ $.Values.project }}
+  {{- if .external.annotations }}
+  annotations: {{ toYaml .external.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  host: {{ .external.host }}
+  path: {{ default "/" .subPath }}
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: {{ $.Release.Name }}-{{ $partName }}
+    weight: 100
+  port:
+    targetPort: https
+  wildcardPolicy: None
+{{- end }}
+
+{{- end }}
+{{- end }}
+{{- end }}

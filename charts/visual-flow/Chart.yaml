@@ -13,3 +13,7 @@ dependencies:
   version: 1.0.0
   repository: file://./charts/vf-secrets
   condition: vf-secrets.install
+- name: argo
+  version: 0.12.2
+  repository: https://argoproj.github.io/argo-helm/
+  condition: argo.install

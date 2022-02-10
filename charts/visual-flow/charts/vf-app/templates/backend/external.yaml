@@ -17,16 +17,16 @@ metadata:
   {{- end }}
 spec:
   rules:
-  - host: {{ .external.host }}
-    http:
-      paths:
-      - path: {{ default "/" .subPath }}
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ $.Release.Name }}-{{ $partName }}
-            port:
-              number: {{ .service.port }}
+    - host: {{ .external.host }}
+      http:
+        paths:
+          - path: {{ default "/" .subPath }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $.Release.Name }}-{{ $partName }}
+                port:
+                  number: {{ .service.port }}
   tls:
     - hosts:
         - {{ .external.host }}

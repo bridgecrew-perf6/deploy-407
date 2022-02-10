@@ -12,3 +12,5 @@ vf-secrets:
   install: true
 ingress-nginx:
   install: true
+argo:
+  install: true

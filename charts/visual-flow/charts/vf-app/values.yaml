@@ -65,7 +65,7 @@ backend:
   external:
     enabled: true
     type: route
-    host: visual-flow.apps.rccokd-dev.redcapcloud.com
+    host: vf-app-backend-visual-flow.apps.mgt-nv-rosa.ij0v.p1.openshiftapps.com
     annotations:
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     ssl: {}
